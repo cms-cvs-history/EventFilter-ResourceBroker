@@ -1,0 +1,13 @@
+<use name=EventFilter/ResourceBroker>
+<use name=EventFilter/Utilities>
+<use name=DataFormats/FEDRawData>
+<use name=xdaq>
+
+<bin name=FUShmServer_t file=FUShmServer.cc,FUShmServer_t.cc>
+</bin>
+
+<bin name=FUShmClient_t file=FUShmClient.cc,FUShmClient_t.cc>
+</bin>
+
+<bin file=FUShmCleanUp_t.cc>
+</bin>
