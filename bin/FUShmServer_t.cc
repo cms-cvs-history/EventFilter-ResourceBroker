@@ -35,7 +35,7 @@ int main(int argc,char**argv)
       <<" bytesPerFed="<<bytesPerFed
       <<" cellBufferSize="<<cellBufferSize<<endl<<endl;
   
-  FUShmBuffer* buffer=FUShmBuffer::createShmBuffer(nCells,nFed,0,cellBufferSize);
+  FUShmBuffer* buffer=FUShmBuffer::createShmBuffer(nCells,cellBufferSize,nFed,0);
   if (0==buffer) return 1;
   FUShmServer* server=new FUShmServer(buffer);
   
