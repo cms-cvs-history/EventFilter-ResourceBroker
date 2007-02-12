@@ -27,7 +27,7 @@ namespace evf {
 
     double       crashPrb() const        { return crashPrb_; }
     void         setCrashPrb(double prb) { crashPrb_=prb;    }
-    
+    void         setSleep(int sec)       {  sleep_ = sec;    }
     
   private:
     //
@@ -35,7 +35,7 @@ namespace evf {
     //
     FUShmBuffer* buffer_;
     double       crashPrb_;
-
+    int          sleep_;
   };
   
   

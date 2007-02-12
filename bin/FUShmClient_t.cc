@@ -37,6 +37,7 @@ int main(int argc,char**argv)
   FUShmBuffer* buffer=FUShmBuffer::getShmBuffer(); if (0==buffer) return 1;
   FUShmClient* client=new FUShmClient(buffer);
   client->setCrashPrb(crashPrb);
+  client->setSleep(sleepTime);
   
   // the structure to hold the read fed data
   vector<vector<unsigned char> > fedData;
@@ -57,9 +58,7 @@ int main(int argc,char**argv)
     // print content
     for(unsigned int i=0;i<fedData.size();i++) print_fed(i,fedData[i]);
     cout<<endl;
-
-    // sleep a lil
-    if (sleepTime>0) sleep(sleepTime);
+    
   }
   
   return 0;

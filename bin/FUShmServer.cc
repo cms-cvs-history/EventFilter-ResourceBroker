@@ -53,10 +53,19 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
   
   // write and advance
   FUShmBufferCell* cell =buffer_->currentWriterCell();
+  cout<<"STATE "<<flush;
+  if (cell->isEmpty())     cout<<"empty"     <<endl;
+  if (cell->isWritten())   cout<<"written"   <<endl;
+  if (cell->isProcessing())cout<<"processing"<<endl;
+  if (cell->isProcessed()) cout<<"processed" <<endl;
+  if (cell->isDead())      cout<<"dead" <<endl;
+  
   if (!cell->isEmpty()) {
     if (cell->isProcessed())
       cout<<"DISCARD "<<cell->index()<<endl;
-    else {
+    else if (cell->isDead())
+      cout<<"dead cell "<<cell->index()<<", HANDLE&DISCARD"<<endl;
+    else{
       cout<<"ERROR: unexpected state of cell "<<cell->index()<<endl;
       cell->dump();
     }

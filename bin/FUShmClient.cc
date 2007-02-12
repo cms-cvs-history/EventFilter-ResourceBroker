@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <cstdlib>   // rand()
+#include <unistd.h> // sleep
 
 
 using namespace std;
@@ -28,6 +29,7 @@ double get_rnd();
 FUShmClient::FUShmClient(FUShmBuffer* buffer)
   : buffer_(buffer)
   , crashPrb_(0.01)
+  , sleep_(0)
 {
   
 }
@@ -58,11 +60,15 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
   
   // this would be seriously troubling!!
   while (!cell->isWritten()) {
-    cout<<"ERROR: unexpected state of "<<cell->index()<<endl;
+    cout<<"ERROR: unexpected state of cell "<<cell->index()<<endl;
     buffer_->sem_print();
     buffer_->print();
     cell=buffer_->currentReaderCell();
+
   }
+  
+  // set state of the cell to 'Processing'
+  cell->setStateProcessing();
   
   // unlock buffer
   buffer_->unlock();
@@ -76,6 +82,13 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
     feds[i].resize(fedSize);  
     unsigned char *destAddr=(unsigned char*)&(feds[i][0]);
     cell->readFed(i,destAddr);
+  }
+  
+  // sleep
+  if (sleep_>0.0) {
+    cout<<"PROCESSING cell "<<cell->index()<<" ... "<<flush;
+    sleep(sleep_);
+    cout<<"DONE"<<endl;
   }
   
   //crash
