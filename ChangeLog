@@ -1,3 +1,7 @@
+2012-03-16  Andrei Spataru  <aspataru@cern.ch>
+
+	* replaced FSM with boost::statechart
+
 2011-10-21  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-14
