@@ -25,8 +25,9 @@ void Stopping::do_stateNotify() {
 	LOG4CPLUS_INFO(res->log_, "--> ResourceBroker: NEW STATE: " << stateName());
 	outermost_context().setExternallyVisibleState(stateName());
 	outermost_context().setInternalStateName(stateName());
-	// notify RCMS of the new state
-	outermost_context().rcmsStateChangeNotify();
+	// RCMS notification no longer required here
+	// this is done in FUResourceBroker in SOAP reply
+	//outermost_context().rcmsStateChangeNotify();
 }
 
 void Stopping::do_stateAction() const {
@@ -76,7 +77,6 @@ bool Stopping::discardDqmEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
 	return res->resourceStructure_->discardDqmEvent(bufRef);
 }
-
 
 // construction / destruction
 //______________________________________________________________________________

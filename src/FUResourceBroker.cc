@@ -59,7 +59,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Last modified: 9.03.2012-S");
+	res_->gui_->setVersionString("Changeset: 26.03.2012-V1.04");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
@@ -148,6 +148,24 @@ void FUResourceBroker::bindStateMachineCallbacks() {
 			XDAQ_NS_URI);
 }
 
+//______________________________________________________________________________
+bool FUResourceBroker::waitForStateChange(string initialState,
+		int timeoutMicroSec) {
+	timeval start;
+	timeval now;
+
+	gettimeofday(&start, 0);
+
+	while (fsm_->getExternallyVisibleState().compare(initialState) == 0) {
+		gettimeofday(&now, 0);
+		if (now.tv_usec <= start.tv_usec + timeoutMicroSec)
+			::usleep(50000);
+		else
+			return false;
+	}
+	return true;
+}
+
 ///////////////////////////////////////
 // State Machine call back functions //
 ///////////////////////////////////////
@@ -157,6 +175,9 @@ xoap::MessageReference FUResourceBroker::handleFSMSoapMessage(
 
 	string errorMsg;
 	xoap::MessageReference returnMsg;
+
+	// register the state of the FSM before processing SOAP command
+	string initialState = fsm_->getExternallyVisibleState();
 
 	try {
 		errorMsg
@@ -198,9 +219,19 @@ xoap::MessageReference FUResourceBroker::handleFSMSoapMessage(
 		}
 
 		errorMsg = "Failed to create FSM SOAP reply message: ";
-		::usleep(50000);
-		returnMsg = soaputils::createFsmSoapResponseMsg(command,
-				fsm_->getExternallyVisibleState());
+
+		// wait until 'initialState' is changed
+		// the SOAP response will be issued only when the state has changed
+		if (waitForStateChange(initialState, 2000000)) {
+			returnMsg = soaputils::createFsmSoapResponseMsg(command,
+					fsm_->getExternallyVisibleState());
+		} else {
+			XCEPT_RAISE(xcept::Exception,
+					"FAILED TO REACH TARGET STATE FROM SOAP COMMAND WITHIN TIMEOUT!");
+			// send fail event to FSM
+			EventPtr stMachEvent(new Fail());
+			res_->commands_.enqEvent(stMachEvent);
+		}
 
 	} catch (xcept::Exception& e) {
 		string s = "Exception on FSM Callback!";

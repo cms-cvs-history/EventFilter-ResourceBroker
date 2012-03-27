@@ -121,6 +121,7 @@ private:
 	//
 	void exportParameters();
 	void bindStateMachineCallbacks();
+	bool waitForStateChange(string name, int timeoutMicroSec);
 
 private:
 	//
