@@ -40,6 +40,7 @@
 #include <iostream>
 #include <sstream>
 
+using std::vector;
 using std::string;
 using std::cout;
 using std::endl;

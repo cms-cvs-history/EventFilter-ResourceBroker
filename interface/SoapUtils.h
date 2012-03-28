@@ -15,21 +15,21 @@ namespace soaputils {
 /**
  * Collection of utility functions for handling SOAP messages
  *
- * $Author: mommsen $
- * $Revision: 1.4 $
- * $Date: 2011/03/07 15:31:32 $
+ * $Author: aspataru $
+ * $Revision: 1.1.2.2 $
+ * $Date: 2012/03/27 17:02:23 $
  */
 
 /**
  * Extract parameters and FSM command from SOAP message
  */
-string extractParameters(xoap::MessageReference, xdaq::Application*);
+std::string extractParameters(xoap::MessageReference, xdaq::Application*);
 
 /**
  * Create a SOAP FSM response message
  */
-xoap::MessageReference createFsmSoapResponseMsg(const string commandName,
-		const string currentState);
+xoap::MessageReference createFsmSoapResponseMsg(const std::string commandName,
+		const std::string currentState);
 
 } // namespace soaputils
 

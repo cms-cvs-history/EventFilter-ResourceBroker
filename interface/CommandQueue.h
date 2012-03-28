@@ -16,8 +16,6 @@
 #include <queue>
 #include <semaphore.h>
 
-using std::queue;
-
 namespace evf {
 
 namespace rb_statemachine {

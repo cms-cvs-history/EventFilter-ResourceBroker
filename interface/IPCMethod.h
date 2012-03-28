@@ -27,9 +27,6 @@
 #include <queue>
 #include <semaphore.h>
 
-using std::string;
-using std::vector;
-
 namespace evf {
 
 /**
@@ -249,13 +246,13 @@ public:
 
 	// information about (raw) shared memory cells
 	virtual UInt_t nbClients() const = 0;
-	virtual vector<pid_t> clientPrcIds() const = 0;
-	virtual string clientPrcIdsAsString() const = 0;
-	virtual vector<string> cellStates() const = 0;
-	virtual vector<string> dqmCellStates() const = 0;
-	virtual vector<UInt_t> cellEvtNumbers() const = 0;
-	virtual vector<pid_t> cellPrcIds() const = 0;
-	virtual vector<time_t> cellTimeStamps() const = 0;
+	virtual std::vector<pid_t> clientPrcIds() const = 0;
+	virtual std::string clientPrcIdsAsString() const = 0;
+	virtual std::vector<std::string> cellStates() const = 0;
+	virtual std::vector<std::string> dqmCellStates() const = 0;
+	virtual std::vector<UInt_t> cellEvtNumbers() const = 0;
+	virtual std::vector<pid_t> cellPrcIds() const = 0;
+	virtual std::vector<time_t> cellTimeStamps() const = 0;
 
 	//
 	// helpers

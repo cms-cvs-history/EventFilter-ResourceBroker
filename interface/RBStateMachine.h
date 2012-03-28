@@ -37,10 +37,6 @@
 #include <vector>
 #include <semaphore.h>
 
-using std::string;
-using std::cout;
-using std::endl;
-
 namespace bsc = boost::statechart;
 
 namespace evf {
@@ -126,7 +122,7 @@ public:
 
 	BaseState();
 	virtual ~BaseState() = 0;
-	string stateName() const;
+	std::string stateName() const;
 	void moveToFailedState(xcept::Exception& exception) const;
 
 	/*
@@ -151,9 +147,9 @@ public:
 	 * Base callback on process buffer received via I2O_SM_DATA_DISCARD message
 	 */
 	virtual bool discardDataEvent(MemRef_t* bufRef) const {
-		cout
+		std::cout
 				<< "RBStateMachine: current state does not support operation >>discardDataEvent<<"
-				<< endl;
+				<< std::endl;
 		// bool value doesn't matter... return value ignored by caller: FUResourceBroker
 		return false;
 	}
@@ -162,9 +158,9 @@ public:
 	 * Base callback on process buffer received via I2O_SM_DQM_DISCARD message
 	 */
 	virtual bool discardDqmEvent(MemRef_t* bufRef) const {
-		cout
+		std::cout
 				<< "RBStateMachine: current state does not support operation >>discardDqmEvent<<"
-				<< endl;
+				<< std::endl;
 		// bool value doesn't matter... return value ignored by caller: FUResourceBroker
 		return false;
 	}
@@ -190,14 +186,14 @@ public:
 	virtual void do_stateAction() const {
 		// do nothing if state does not override this function
 		/*
-		 cout << "RBStateMachine: no >>STATE ACTION<< defined for state: "
-		 << stateName() << endl;
+		   std::cout << "RBStateMachine: no >>STATE ACTION<< defined for state: "
+		 << stateName() << std::endl;
 		 */
 	}
 
 protected:
 
-	virtual string do_stateName() const = 0;
+	virtual std::string do_stateName() const = 0;
 
 	virtual void do_moveToFailedState(xcept::Exception& exception) const = 0;
 	void fail();
@@ -232,20 +228,20 @@ public:
 	inline SharedResourcesPtr_t getSharedResources() const {
 		return sharedResources_;
 	}
-	inline string getExternallyVisibleState() {
+	inline std::string getExternallyVisibleState() {
 		return visibleStateName_.value_;
 	}
 	inline xdata::String* getExternallyVisibleStatePtr() {
 		return &visibleStateName_;
 	}
-	inline string getInternalStateName() {
+	inline std::string getInternalStateName() {
 		return internalStateName_;
 	}
 	inline xdaq::Application* getApp() const {
 		return app_;
 	}
-	void setExternallyVisibleState(const string& s);
-	void setInternalStateName(const string& s);
+	void setExternallyVisibleState(const std::string& s);
+	void setInternalStateName(const std::string& s);
 	/**
 	 * Returns true if Halted state was never exited (visited only once).
 	 */
@@ -291,8 +287,8 @@ public:
 	}
 
 private:
-	void updateWebGUIExternalState(string newStateName) const;
-	void updateWebGUIInternalState(string newStateName) const;
+	void updateWebGUIExternalState(std::string newStateName) const;
+	void updateWebGUIInternalState(std::string newStateName) const;
 
 private:
 
@@ -300,7 +296,7 @@ private:
 	SharedResourcesPtr_t sharedResources_;
 	xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 	xdata::String visibleStateName_;
-	string internalStateName_;
+	std::string internalStateName_;
 	bool firstTimeInHalted_;
 
 	pthread_rwlock_t transitionLock_;
@@ -331,7 +327,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -364,7 +360,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -395,7 +391,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -434,7 +430,7 @@ private:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -466,7 +462,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -498,7 +494,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -532,7 +528,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -564,7 +560,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -600,7 +596,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -639,7 +635,7 @@ private:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;
@@ -676,7 +672,7 @@ public:
 
 private:
 
-	virtual string do_stateName() const;
+	virtual std::string do_stateName() const;
 	virtual void do_entryActionWork();
 	virtual void do_exitActionWork();
 	virtual void do_moveToFailedState(xcept::Exception& exception) const;

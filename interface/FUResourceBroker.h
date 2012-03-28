@@ -33,7 +33,7 @@
 #include <semaphore.h>
 #include <sys/time.h>
 
-using namespace evf::rb_statemachine;
+//using namespace evf::rb_statemachine;
 
 namespace evf {
 
@@ -44,7 +44,7 @@ class EvffedFillerRB;
 /**
  * Main class of the Resource Broker XDAQ application.
  *
- * $Author: Philipp Schieferdecker, aspataru $
+ * $Author: aspataru $
  *
  */
 
@@ -128,13 +128,13 @@ private:
 	// member data
 	//
 	// Event scheduler, owned by FUResourceBroker
-	SMEventScheduler* eventScheduler_;
+	evf::rb_statemachine::SMEventScheduler* eventScheduler_;
 
 	// Shared Resources
-	SharedResourcesPtr_t res_;
+	evf::rb_statemachine::SharedResourcesPtr_t res_;
 
 	// Finite state machine
-	RBStateMachinePtr fsm_;
+	evf::rb_statemachine::RBStateMachinePtr fsm_;
 
 	// monitored parameters
 	xdata::String url_;

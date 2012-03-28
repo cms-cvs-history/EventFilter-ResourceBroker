@@ -18,9 +18,6 @@
 
 #include <vector>
 
-using std::cout;
-using std::endl;
-
 #define FED_HCTRLID    0x50000000
 #define FED_TCTRLID    0xa0000000
 #define REAL_SOID_MASK 0x0003FF00
@@ -39,7 +36,7 @@ class EvffedFillerRB;
 /**
  * Object representing a managed resource.
  *
- * $Author: Philipp Schieferdecker, aspataru $
+ * $Author: aspataru $
  *
  */
 
@@ -131,12 +128,22 @@ public:
 		return nbSent_;
 	}
 
+	UInt_t nbReceived() const {
+		return nbReceived_;
+	}
 	/**
 	 * Increment the number of sent resources
 	 */
 	void incNbSent() {
 		nbSent_++;
 	}
+	/**
+	 * Increment the number of sent resources
+         */
+	void incNbReceived() {
+      		nbReceived_++;
+	}
+
 
 	UInt_t nbErrors(bool reset = true);
 	UInt_t nbCrcErrors(bool reset = true);
@@ -182,6 +189,7 @@ private:
 	UInt_t nSuperFrag_;
 
 	UInt_t nbSent_;
+	UInt_t nbReceived_;
 
 	UInt_t nbErrors_;
 	UInt_t nbCrcErrors_;
@@ -224,8 +232,8 @@ inline
 bool evf::FUResource::isComplete() const {
 
 #ifdef DEBUG_FURESOURCE_H
-	cout << "------------------------------------------------------"<< endl;
-	cout << "nBlock " << nBlock_
+	std::cout << "------------------------------------------------------"<< std::endl;
+	std::cout << "nBlock " << nBlock_
 	<< " iBlock " << iBlock_
 	<< " nSuperFrag " << nSuperFrag_
 	<< " iSuperFrag " << iSuperFrag_

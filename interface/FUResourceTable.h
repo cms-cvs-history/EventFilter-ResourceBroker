@@ -28,15 +28,12 @@
 
 #include "IPCMethod.h"
 
-using std::string;
-using std::vector;
-
 namespace evf {
 
 /**
  * Table of resources linked with the Shared Memory Buffer
  *
- * $Author: Philipp Schieferdecker, aspataru $
+ * $Author: aspataru $
  *
  */
 
@@ -151,13 +148,13 @@ public:
 
 	// information about (raw) shared memory cells
 	UInt_t nbClients() const;
-	vector<pid_t> clientPrcIds() const;
-	string clientPrcIdsAsString() const;
-	vector<string> cellStates() const;
-	vector<string> dqmCellStates() const;
-	vector<UInt_t> cellEvtNumbers() const;
-	vector<pid_t> cellPrcIds() const;
-	vector<time_t> cellTimeStamps() const;
+	std::vector<pid_t> clientPrcIds() const;
+	std::string clientPrcIdsAsString() const;
+	std::vector<std::string> cellStates() const;
+	std::vector<std::string> dqmCellStates() const;
+	std::vector<UInt_t> cellEvtNumbers() const;
+	std::vector<pid_t> cellPrcIds() const;
+	std::vector<time_t> cellTimeStamps() const;
 
 	//
 	// helpers
