@@ -40,11 +40,11 @@
 #include <iostream>
 #include <sstream>
 
-using std::vector;
 using std::string;
 using std::cout;
 using std::endl;
 using std::stringstream;
+using std::vector;
 using namespace evf;
 using namespace evf::rb_statemachine;
 

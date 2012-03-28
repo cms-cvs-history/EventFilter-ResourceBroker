@@ -36,7 +36,7 @@ class EvffedFillerRB;
 /**
  * Object representing a managed resource.
  *
- * $Author: aspataru $
+ * $Author: Philipp Schieferdecker, aspataru $
  *
  */
 
@@ -128,22 +128,12 @@ public:
 		return nbSent_;
 	}
 
-	UInt_t nbReceived() const {
-		return nbReceived_;
-	}
 	/**
 	 * Increment the number of sent resources
 	 */
 	void incNbSent() {
 		nbSent_++;
 	}
-	/**
-	 * Increment the number of sent resources
-         */
-	void incNbReceived() {
-      		nbReceived_++;
-	}
-
 
 	UInt_t nbErrors(bool reset = true);
 	UInt_t nbCrcErrors(bool reset = true);
@@ -189,7 +179,6 @@ private:
 	UInt_t nSuperFrag_;
 
 	UInt_t nbSent_;
-	UInt_t nbReceived_;
 
 	UInt_t nbErrors_;
 	UInt_t nbCrcErrors_;
@@ -232,8 +221,8 @@ inline
 bool evf::FUResource::isComplete() const {
 
 #ifdef DEBUG_FURESOURCE_H
-	std::cout << "------------------------------------------------------"<< std::endl;
-	std::cout << "nBlock " << nBlock_
+	cout << "------------------------------------------------------"<< endl;
+	cout << "nBlock " << nBlock_
 	<< " iBlock " << iBlock_
 	<< " nSuperFrag " << nSuperFrag_
 	<< " iSuperFrag " << iSuperFrag_

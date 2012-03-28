@@ -6,8 +6,6 @@
 
 #include <string>
 
-using std::string;
-
 namespace evf {
 
 namespace soaputils {
@@ -15,9 +13,9 @@ namespace soaputils {
 /**
  * Collection of utility functions for handling SOAP messages
  *
- * $Author: aspataru $
- * $Revision: 1.1.2.2 $
- * $Date: 2012/03/27 17:02:23 $
+ * $Author: mommsen $
+ * $Revision: 1.4 $
+ * $Date: 2011/03/07 15:31:32 $
  */
 
 /**

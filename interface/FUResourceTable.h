@@ -33,7 +33,7 @@ namespace evf {
 /**
  * Table of resources linked with the Shared Memory Buffer
  *
- * $Author: aspataru $
+ * $Author: Philipp Schieferdecker, aspataru $
  *
  */
 

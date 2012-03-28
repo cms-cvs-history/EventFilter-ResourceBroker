@@ -25,7 +25,6 @@
 #include <iomanip>
 #include <unistd.h>
 
-using std::vector;
 using std::cout;
 using std::endl;
 using std::string;

@@ -13,6 +13,7 @@
 using std::cout;
 using std::endl;
 using std::vector;
+using std::string;
 using namespace evf::rb_statemachine;
 
 // entry action, state notification, state action

@@ -186,7 +186,7 @@ public:
 	virtual void do_stateAction() const {
 		// do nothing if state does not override this function
 		/*
-		   std::cout << "RBStateMachine: no >>STATE ACTION<< defined for state: "
+		 std::cout << "RBStateMachine: no >>STATE ACTION<< defined for state: "
 		 << stateName() << std::endl;
 		 */
 	}

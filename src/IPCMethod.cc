@@ -16,8 +16,8 @@
 
 #include <iomanip>
 
-using std::endl;
 using std::ofstream;
+using std::endl;
 using namespace evf;
 
 ////////////////////////////////////////////////////////////////////////////////

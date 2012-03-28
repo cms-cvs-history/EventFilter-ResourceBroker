@@ -17,6 +17,7 @@
 
 using std::cout;
 using std::endl;
+using std::string;
 using namespace evf::rb_statemachine;
 
 RBStateMachine::RBStateMachine(xdaq::Application* app, SharedResourcesPtr_t sr) :

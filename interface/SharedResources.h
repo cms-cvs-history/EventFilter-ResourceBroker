@@ -38,9 +38,6 @@
 #include <iostream>
 #include <queue>
 
-using std::string;
-using namespace toolbox;
-
 namespace evf {
 
 class FUResourceBroker;
@@ -86,12 +83,12 @@ public:
 	 * Resets counters
 	 */
 	void reset();
-	void updateGUIExternalState(string newState) {
+	void updateGUIExternalState(std::string newState) {
 		//lock();
 		gui_->updateExternalState(newState);
 		//unlock();
 	}
-	void updateGUIInternalState(string newState) {
+	void updateGUIInternalState(std::string newState) {
 		//lock();
 		gui_->updateInternalState(newState);
 		//unlock();
@@ -222,7 +219,7 @@ private:
 	IPCMethod* resourceStructure_;
 
 	// application identifier
-	string sourceId_;
+	std::string sourceId_;
 
 	// monitored parameters
 	xdata::UnsignedInteger32 runNumber_;

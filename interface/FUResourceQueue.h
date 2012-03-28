@@ -99,13 +99,13 @@ public:
 
 	// information about (raw) shared memory cells
 	UInt_t nbClients() const;
-	std::vector<pid_t> clientPrcIds() const;
+	vector<pid_t> clientPrcIds() const;
 	std::string clientPrcIdsAsString() const;
-	std::vector<std::string> cellStates() const;
-	std::vector<std::string> dqmCellStates() const;
-	std::vector<UInt_t> cellEvtNumbers() const;
-	std::vector<pid_t> cellPrcIds() const;
-	std::vector<time_t> cellTimeStamps() const;
+	vector<std::string> cellStates() const;
+	vector<std::string> dqmCellStates() const;
+	vector<UInt_t> cellEvtNumbers() const;
+	vector<pid_t> cellPrcIds() const;
+	vector<time_t> cellTimeStamps() const;
 
 	//
 	// helpers
