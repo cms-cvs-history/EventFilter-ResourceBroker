@@ -29,6 +29,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::stringstream;
+using std::vector;
 using namespace evf;
 
 ////////////////////////////////////////////////////////////////////////////////
