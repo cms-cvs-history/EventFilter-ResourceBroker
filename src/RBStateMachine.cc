@@ -31,10 +31,16 @@ RBStateMachine::RBStateMachine(xdaq::Application* app, SharedResourcesPtr_t sr) 
 	// pass pointer of FSM to shared resources
 	sharedResources_->setFsmPointer(this);
 
+	// make the RW Lock writer-biased
 	pthread_rwlockattr_t attr;
 	pthread_rwlockattr_init(&attr);
+
+#ifndef __APPLE__
+	// unsupported on Mac OS
 	pthread_rwlockattr_setkind_np(&attr,
 			PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP);
+#endif
+
 	pthread_rwlock_init(&transitionLock_, &attr);
 
 }
