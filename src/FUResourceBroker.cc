@@ -60,7 +60,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Changeset: 26.03.2012-V1.04");
+	res_->gui_->setVersionString("Changeset: 2.04.2012-V1.04b");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
