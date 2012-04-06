@@ -13,6 +13,7 @@
 #include "EventFilter/ResourceBroker/interface/msq_constants.h"
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h>
 
 using namespace evf;
 using std::cout;
