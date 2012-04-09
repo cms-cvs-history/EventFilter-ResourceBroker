@@ -96,7 +96,8 @@ void IPCMethod::dumpEvent(FUShmRawCell* cell) {
 //______________________________________________________________________________
 void IPCMethod::sendAllocate() {
 	UInt_t nbFreeSlots = this->nbFreeSlots();
-	UInt_t nbFreeSlotsMax = 0 /*nbResources() / 2*/;
+	/*UInt_t nbFreeSlotsMax = 0*/ //reverting to larger chunk requests for BU
+	UInt_t nbFreeSlotsMax = nbResources() / 2;
 	if (nbFreeSlots > nbFreeSlotsMax) {
 		UIntVec_t fuResourceIds;
 		for (UInt_t i = 0; i < nbFreeSlots; i++)
