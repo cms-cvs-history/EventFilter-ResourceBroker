@@ -39,11 +39,11 @@ using namespace evf;
 //______________________________________________________________________________
 FUResourceQueue::FUResourceQueue(bool segmentationMode, UInt_t nbRawCells,
 		UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-		UInt_t recoCellSize, UInt_t dqmCellSize, BUProxy *bu, SMProxy *sm,
+		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy *bu, SMProxy *sm,
 		log4cplus::Logger logger, unsigned int timeout, EvffedFillerRB *frb,
 		xdaq::Application*app) throw (evf::Exception) :
 			IPCMethod(segmentationMode, nbRawCells, nbRecoCells, nbDqmCells,
-					rawCellSize, recoCellSize, dqmCellSize, bu, sm, logger,
+					rawCellSize, recoCellSize, dqmCellSize, freeResReq, bu, sm, logger,
 					timeout, frb, app), msq_(99) {
 	//improve fix UInt_t and msq_(99)
 
@@ -617,7 +617,7 @@ bool FUResourceQueue::discard(/*toolbox::task::WorkLoop* wl*/) {
 }
 
 //______________________________________________________________________________
-bool FUResourceQueue::discardWhileHalting(/*toolbox::task::WorkLoop* wl*/) {
+bool FUResourceQueue::discardWhileHalting(bool sendDiscards) {
 
 	bool reschedule = true;
 

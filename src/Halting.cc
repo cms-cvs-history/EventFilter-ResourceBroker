@@ -80,8 +80,6 @@ void Halting::do_stateAction() const {
 			res->commands_.enqEvent(failTimeOut);
 		}
 	} catch (xcept::Exception &e) {
-
-		res->reasonForFailed_ = e.what();
 		moveToFailedState(e);
 	}
 
@@ -94,11 +92,25 @@ void Halting::do_stateAction() const {
  */
 bool Halting::discardDataEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	return res->resourceStructure_->discardDataEventWhileHalting(bufRef);
+	bool returnValue = false;
+	try {
+		returnValue = res->resourceStructure_->discardDataEventWhileHalting(
+				bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+	return returnValue;
 }
 bool Halting::discardDqmEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	return res->resourceStructure_->discardDqmEvent/*WhileHalting*/(bufRef);
+	bool returnValue = false;
+	try {
+		returnValue = res->resourceStructure_->discardDqmEvent/*WhileHalting*/(
+				bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+	return returnValue;
 }
 
 // construction / destruction
@@ -123,6 +135,7 @@ string Halting::do_stateName() const {
 
 void Halting::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
+	res->reasonForFailed_ = exception.what();
 	LOG4CPLUS_ERROR(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());

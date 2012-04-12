@@ -58,7 +58,6 @@ void Configuring::do_stateAction() const {
 		res->commands_.enqEvent(configureDone);
 
 	} catch (xcept::Exception &e) {
-		res->reasonForFailed_ = e.what();
 		moveToFailedState(e);
 	}
 }
@@ -85,6 +84,7 @@ string Configuring::do_stateName() const {
 
 void Configuring::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
+	res->reasonForFailed_ = exception.what();
 	LOG4CPLUS_ERROR(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());

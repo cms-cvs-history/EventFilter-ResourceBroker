@@ -60,7 +60,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Changeset: 9.04.2012-V1.04c");
+	res_->gui_->setVersionString("Changeset: 12.04.2012-V1.05");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
@@ -253,11 +253,17 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef) {
 	bool success = currentState.take(bufRef);
 
 	if (!success) {
+		stringstream details;
+		details << " More details -> allocated events: "
+				<< res_->nbAllocatedEvents_ << ", pending requests to BU: "
+				<< res_->nbPendingRequests_ << ", received events: "
+				<< res_->nbReceivedEvents_;
 		LOG4CPLUS_ERROR(
 				res_->log_,
 				"TAKE i2o frame received in state "
 						<< fsm_->getExternallyVisibleState()
-						<< " is being lost");
+						<< " is being lost! THIS MEANS LOST EVENT DATA!"
+						<< details);
 
 		bufRef->release();
 	}
@@ -293,8 +299,17 @@ void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(
 	const BaseState& currentState = fsm_->getCurrentState();
 	fsm_->transitionUnlock();
 
-	/*bool success = */
-	currentState.discardDataEvent(bufRef);
+	res_->lockRSAccess();
+	if (res_->allowAccessToResourceStructure_)
+		/*bool success = */
+		currentState.discardDataEvent(bufRef);
+	else {
+		LOG4CPLUS_WARN(
+				res_->log_,
+				"Data Discard I2O message received from SM is being ignored! ShmBuffer was reinitialized!");
+		bufRef->release();
+	}
+	res_->unlockRSAccess();
 
 	res_->nbDataDiscardReceived_.value_++;
 }
@@ -307,8 +322,17 @@ void FUResourceBroker::I2O_FU_DQM_DISCARD_Callback(
 	const BaseState& currentState = fsm_->getCurrentState();
 	fsm_->transitionUnlock();
 
-	/*bool success = */
-	currentState.discardDqmEvent(bufRef);
+	res_->lockRSAccess();
+	if (res_->allowAccessToResourceStructure_)
+		/*bool success = */
+		currentState.discardDqmEvent(bufRef);
+	else {
+		LOG4CPLUS_WARN(
+				res_->log_,
+				"DQM Discard I2O message received from SM is being ignored! ShmBuffer was reinitialized!");
+		bufRef->release();
+	}
+	res_->unlockRSAccess();
 
 	res_->nbDqmDiscardReceived_.value_++;
 }
@@ -359,6 +383,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e) {
 					+ ((res_->nbTimeoutsWithEvent_.value_ != 0u) << 3)
 					+ ((res_->nbTimeoutsWithoutEvent_.value_ != 0u) << 4)
 					+ ((res_->nbSentErrorEvents_.value_ != 0u) << 5));
+
 		} else if (e.type() == "ItemChangedEvent") {
 
 			string item = dynamic_cast<xdata::ItemChangedEvent&> (e).itemName();
@@ -461,6 +486,8 @@ void FUResourceBroker::exportParameters() {
 	res_->gui_->addStandardParam("rawCellSize", &res_->rawCellSize_);
 	res_->gui_->addStandardParam("recoCellSize", &res_->recoCellSize_);
 	res_->gui_->addStandardParam("dqmCellSize", &res_->dqmCellSize_);
+	res_->gui_->addStandardParam("nbFreeResRequiredForAllocate",
+			&res_->freeResRequiredForAllocate_);
 
 	res_->gui_->addStandardParam("doDropEvents", &res_->doDropEvents_);
 	res_->gui_->addStandardParam("doFedIdCheck", &res_->doFedIdCheck_);

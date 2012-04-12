@@ -51,7 +51,14 @@ void Stopping::do_stateAction() const {
 						<< endl;
 				LOG4CPLUS_WARN(res->log_,
 						"Some Process did not detach - going to Emergency stop!");
+
+				/**
+				 * EMERGENCY STOP IS TRIGGERED
+				 */
+				res->lockRSAccess();
 				emergencyStop();
+				res->unlockRSAccess();
+
 				break;
 			}
 		}
@@ -62,7 +69,6 @@ void Stopping::do_stateAction() const {
 			res->commands_.enqEvent(stopDone);
 		}
 	} catch (xcept::Exception &e) {
-		res->reasonForFailed_ = e.what();
 		moveToFailedState(e);
 	}
 }
@@ -72,11 +78,23 @@ void Stopping::do_stateAction() const {
  */
 bool Stopping::discardDataEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	return res->resourceStructure_->discardDataEvent(bufRef);
+	bool returnValue = false;
+	try {
+		returnValue = res->resourceStructure_->discardDataEvent(bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+	return returnValue;
 }
 bool Stopping::discardDqmEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	return res->resourceStructure_->discardDqmEvent(bufRef);
+	bool returnValue = false;
+	try {
+		returnValue = res->resourceStructure_->discardDqmEvent(bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+	return returnValue;
 }
 
 // construction / destruction
@@ -95,6 +113,11 @@ void Stopping::emergencyStop() const {
 	IPCMethod* resourceStructure = res->resourceStructure_;
 
 	LOG4CPLUS_WARN(res->log_, "in Emergency stop - handle non-clean stops");
+
+	// UPDATE: while in emergency stop, access is no longer allowed to ResourceStructure
+	// I2O messages from SM will be rejected
+	res->allowAccessToResourceStructure_ = false;
+
 	vector<pid_t> client_prc_ids = resourceStructure->clientPrcIds();
 	for (UInt_t i = 0; i < client_prc_ids.size(); i++) {
 		pid_t pid = client_prc_ids[i];
@@ -114,9 +137,11 @@ void Stopping::emergencyStop() const {
 				= "EmergencyStop: failed to shut down ResourceTable";
 		XCEPT_RAISE(evf::Exception, res->reasonForFailed_);
 	}
+
 	res->printWorkLoopStatus();
 	res->lock();
 
+	LOG4CPLUS_WARN(res->log_, "Deleting the resource structure!");
 	delete res->resourceStructure_;
 	res->resourceStructure_ = 0;
 
@@ -139,6 +164,7 @@ string Stopping::do_stateName() const {
 
 void Stopping::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
+	res->reasonForFailed_ = exception.what();
 	LOG4CPLUS_ERROR(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());

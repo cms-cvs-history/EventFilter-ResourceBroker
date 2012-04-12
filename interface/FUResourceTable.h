@@ -44,7 +44,7 @@ public:
 	//
 	FUResourceTable(bool segmentationMode, UInt_t nbRawCells,
 			UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-			UInt_t recoCellSize, UInt_t dqmCellSize, BUProxy* bu, SMProxy* sm,
+			UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy* bu, SMProxy* sm,
 			log4cplus::Logger logger, unsigned int, EvffedFillerRB* frb,
 			xdaq::Application*) throw (evf::Exception);
 	virtual ~FUResourceTable();
@@ -85,7 +85,7 @@ public:
 	/**
 	 * Function called when FSM is in state stopping / halting, in Discard workloop.
 	 */
-	bool discardWhileHalting();
+	bool discardWhileHalting(bool sendDiscards);
 
 	/**
 	 * Process buffer received via I2O_FU_TAKE message
@@ -171,6 +171,11 @@ private:
 	 * The function sets readyToShutDown to true, allowing the Resource Table to be safely shut down.
 	 */
 	void discardNoReschedule();
+
+	/**
+	 * Rethrows an exception from the ShmBuffer including details.
+	 */
+	void rethrowShmBufferException(evf::Exception& e) const throw (evf::Exception);
 
 	FUShmBuffer *shmBuffer_;
 

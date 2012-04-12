@@ -20,6 +20,7 @@ using std::ofstream;
 using std::endl;
 using namespace evf;
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,15 +28,23 @@ using namespace evf;
 //______________________________________________________________________________
 IPCMethod::IPCMethod(bool segmentationMode, UInt_t nbRawCells,
 		UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-		UInt_t recoCellSize, UInt_t dqmCellSize, BUProxy *bu, SMProxy *sm,
-		log4cplus::Logger logger, unsigned int timeout, EvffedFillerRB *frb,
-		xdaq::Application*app) throw (evf::Exception) :
+		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq,
+		BUProxy *bu, SMProxy *sm, log4cplus::Logger logger,
+		unsigned int timeout, EvffedFillerRB *frb, xdaq::Application*app)
+		throw (evf::Exception) :
 	bu_(bu), sm_(sm), log_(logger), nbDqmCells_(nbDqmCells),
 			nbRawCells_(nbRawCells), nbRecoCells_(nbRecoCells),
-			acceptSMDataDiscard_(0), acceptSMDqmDiscard_(0), doCrcCheck_(1),
-			shutdownTimeout_(timeout), nbPending_(0), nbClientsToShutDown_(0),
-			isReadyToShutDown_(true), isActive_(false), runNumber_(0xffffffff),
-			frb_(frb), app_(app) {
+			acceptSMDataDiscard_(0),
+			acceptSMDqmDiscard_(0), doCrcCheck_(1), shutdownTimeout_(timeout),
+			nbPending_(0), nbClientsToShutDown_(0), isReadyToShutDown_(true),
+			isActive_(false), runNumber_(0xffffffff), frb_(frb), app_(app) {
+
+	// if the freeResRequiredForAllocate_ threshold is set in configuration use that
+	// otherwise use nbRawCells / 2
+	if (freeResReq < 0)
+		freeResRequiredForAllocate_ = nbRawCells_ / 2;
+	else
+		freeResRequiredForAllocate_ = freeResReq;
 
 	sem_init(&lock_, 0, 1);
 }
@@ -96,8 +105,10 @@ void IPCMethod::dumpEvent(FUShmRawCell* cell) {
 //______________________________________________________________________________
 void IPCMethod::sendAllocate() {
 	UInt_t nbFreeSlots = this->nbFreeSlots();
-	/*UInt_t nbFreeSlotsMax = 0*/ //reverting to larger chunk requests for BU
-	UInt_t nbFreeSlotsMax = nbResources() / 2;
+	/*UInt_t nbFreeSlotsMax = 0*///reverting to larger chunk requests for BU
+	//UInt_t nbFreeSlotsMax = nbResources() / 2;
+	UInt_t nbFreeSlotsMax = freeResRequiredForAllocate_;
+
 	if (nbFreeSlots > nbFreeSlotsMax) {
 		UIntVec_t fuResourceIds;
 		for (UInt_t i = 0; i < nbFreeSlots; i++)

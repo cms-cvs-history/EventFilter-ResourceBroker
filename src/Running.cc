@@ -34,10 +34,20 @@ void Running::do_stateNotify() {
  */
 bool Running::take(toolbox::mem::Reference* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	bool eventComplete = res->resourceStructure_->buildResource(bufRef);
+	bool eventComplete = false;
+	try {
+		eventComplete = res->resourceStructure_->buildResource(bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+
 	if (eventComplete && res->doDropEvents_) {
 		cout << "dropping event" << endl;
-		res->resourceStructure_->dropEvent();
+		try {
+			res->resourceStructure_->dropEvent();
+		} catch (evf::Exception& e) {
+			moveToFailedState(e);
+		}
 	}
 	return true;
 }
@@ -73,17 +83,33 @@ bool Running::evmLumisection(toolbox::mem::Reference* bufRef) const {
 	if (res->highestEolReceived_.value_ < msg->lumiSection)
 		res->highestEolReceived_.value_ = msg->lumiSection;
 
-	res->resourceStructure_->postEndOfLumiSection(bufRef);
+	try {
+		res->resourceStructure_->postEndOfLumiSection(bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
 	return true;
 }
 
 bool Running::discardDataEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	return res->resourceStructure_->discardDataEvent(bufRef);
+	bool returnValue = false;
+	try {
+		returnValue = res->resourceStructure_->discardDataEvent(bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+	return returnValue;
 }
 bool Running::discardDqmEvent(MemRef_t* bufRef) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	return res->resourceStructure_->discardDqmEvent(bufRef);
+	bool returnValue = false;
+	try {
+		returnValue = res->resourceStructure_->discardDqmEvent(bufRef);
+	} catch (evf::Exception& e) {
+		moveToFailedState(e);
+	}
+	return returnValue;
 }
 
 // construction / destruction
@@ -108,6 +134,7 @@ string Running::do_stateName() const {
 
 void Running::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
+	res->reasonForFailed_ = exception.what();
 	LOG4CPLUS_ERROR(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());

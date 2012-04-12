@@ -35,7 +35,7 @@ public:
 	//
 	FUResourceQueue(bool segmentationMode, UInt_t nbRawCells,
 			UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-			UInt_t recoCellSize, UInt_t dqmCellSize, BUProxy* bu, SMProxy* sm,
+			UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy* bu, SMProxy* sm,
 			log4cplus::Logger logger, unsigned int, EvffedFillerRB*frb,
 			xdaq::Application*) throw (evf::Exception);
 	virtual ~FUResourceQueue();
@@ -59,7 +59,7 @@ public:
 
 	// work loop to discard events to builder unit
 	bool discard();
-	bool discardWhileHalting();
+	bool discardWhileHalting(bool sendDiscards);
 
 	// process buffer received via I2O_FU_TAKE message
 	bool buildResource(MemRef_t* bufRef);

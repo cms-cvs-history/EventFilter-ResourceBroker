@@ -35,7 +35,8 @@ public:
 	 */
 	void initialise(bool segmentationMode, UInt_t nbRawCells,
 			UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-			UInt_t recoCellSize, UInt_t dqmCellSize, BUProxy* bu, SMProxy* sm,
+			UInt_t recoCellSize, UInt_t dqmCellSize,
+			int freeResRequiredForAllocate, BUProxy* bu, SMProxy* sm,
 			log4cplus::Logger logger, unsigned int resourceStructureTimeout,
 			EvffedFillerRB*frb, xdaq::Application*) throw (evf::Exception);
 
@@ -49,6 +50,7 @@ private:
 	//	true - Message Queue
 	//	false - Shared Memory
 	bool useMessageQueueIPC_;
+
 	// pointer to IPC communication type
 	IPCMethod* ipc_;
 

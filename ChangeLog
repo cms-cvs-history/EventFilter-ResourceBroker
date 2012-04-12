@@ -1,3 +1,9 @@
+2012-04-12  Andrei Spataru  <aspataru@cern.ch>
+
+	* tag V01-00-06
+	* added ShmBuffer exception handling
+	* added protection from late SM discards through I2O
+	
 2012-04-09  Srecko Morovic  <smorovic@cern.ch>
 
 	* tag V01-00-05-01

@@ -54,7 +54,6 @@ void SMEventScheduler::startSchedulerWorkloop() throw (evf::Exception) {
 bool SMEventScheduler::processing(toolbox::task::WorkLoop* wl) {
 	// deqEvent() blocks until a command is present in the queue
 	EventPtr topEvent = commands_.deqEvent();
-	string type(typeid(*topEvent).name());
 
 	// 0. lock state transition
 	fsm_->transitionWriteLock();

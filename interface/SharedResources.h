@@ -26,6 +26,7 @@
 
 #include "xdata/InfoSpace.h"
 #include "xdata/UnsignedInteger32.h"
+#include "xdata/Integer.h"
 #include "xdata/Double.h"
 #include "xdata/Boolean.h"
 #include "xdata/String.h"
@@ -113,6 +114,17 @@ public:
 		sem_post(&lock_);
 	}
 
+	void lockRSAccess() {
+		while (0 != sem_wait(&accessToResourceStructureLock_)) {
+			if (errno != EINTR) {
+				LOG4CPLUS_ERROR(log_, "Cannot obtain lock on sem accessToResourceStructureLock_!");
+			}
+		}
+	}
+	void unlockRSAccess() {
+		sem_post(&accessToResourceStructureLock_);
+	}
+
 	void printWorkLoopStatus();
 
 private:
@@ -165,6 +177,11 @@ private:
 	 * Action for Discard Work loop. The forwards the call to the current state of the FSM.
 	 */
 	bool discard(toolbox::task::WorkLoop* wl);
+
+	/**
+	 * Goes to failed state due to the given exception
+	 */
+	void goToFailedState(evf::Exception& e);
 
 private:
 
@@ -270,6 +287,8 @@ private:
 	xdata::UnsignedInteger32 rawCellSize_;
 	xdata::UnsignedInteger32 recoCellSize_;
 	xdata::UnsignedInteger32 dqmCellSize_;
+	// UPDATE freeResourcesRequiredForAllocate
+	xdata::Integer freeResRequiredForAllocate_;
 
 	xdata::Boolean doDropEvents_;
 	xdata::Boolean doFedIdCheck_;
@@ -305,7 +324,12 @@ private:
 	// lock
 	sem_t lock_;
 	EvffedFillerRB *frb_;
+
 	bool shmInconsistent_;
+
+	// emergency stop protection against I2O access
+	sem_t accessToResourceStructureLock_;
+	bool allowAccessToResourceStructure_;
 
 	/*
 	 * FRIENDS

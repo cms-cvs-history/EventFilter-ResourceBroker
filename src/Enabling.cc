@@ -68,12 +68,15 @@ void Enabling::do_stateAction() const {
 		res->nbTimeoutsWithoutEvent_ = 0;
 		res->dataErrorFlag_ = 0;
 
+		// make sure access is granted to the resource structure
+		// (re-enable access after an emergency stop)
+		res->allowAccessToResourceStructure_ = true;
+
 		LOG4CPLUS_INFO(res->log_, "Finished enabling!");
 		EventPtr enableDone(new EnableDone());
 		res->commands_.enqEvent(enableDone);
 
 	} catch (xcept::Exception &e) {
-		res->reasonForFailed_ = e.what();
 		moveToFailedState(e);
 	}
 }
@@ -100,6 +103,7 @@ string Enabling::do_stateName() const {
 
 void Enabling::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
+	res->reasonForFailed_ = exception.what();
 	LOG4CPLUS_ERROR(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());

@@ -28,7 +28,7 @@ IPCManager::~IPCManager() {
 //______________________________________________________________________________
 void IPCManager::initialise(bool segmentationMode, UInt_t nbRawCells,
 		UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-		UInt_t recoCellSize, UInt_t dqmCellSize, BUProxy* bu, SMProxy* sm,
+		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy* bu, SMProxy* sm,
 		log4cplus::Logger logger, unsigned int resourceStructureTimeout,
 		EvffedFillerRB* frb, xdaq::Application* app) throw (evf::Exception) {
 
@@ -42,7 +42,7 @@ void IPCManager::initialise(bool segmentationMode, UInt_t nbRawCells,
 				<< endl;
 
 		ipc_ = new FUResourceTable(segmentationMode, nbRawCells, nbRecoCells,
-				nbDqmCells, rawCellSize, recoCellSize, dqmCellSize, bu, sm,
+				nbDqmCells, rawCellSize, recoCellSize, dqmCellSize, freeResReq, bu, sm,
 				logger, resourceStructureTimeout, frb, app);
 	} else {
 		// IPC communication type is MessageQueue
@@ -50,7 +50,7 @@ void IPCManager::initialise(bool segmentationMode, UInt_t nbRawCells,
 				<< endl;
 
 		ipc_ = new FUResourceQueue(segmentationMode, nbRawCells, nbRecoCells,
-				nbDqmCells, rawCellSize, recoCellSize, dqmCellSize, bu, sm,
+				nbDqmCells, rawCellSize, recoCellSize, dqmCellSize, freeResReq, bu, sm,
 				logger, resourceStructureTimeout, frb, app);
 	}
 }

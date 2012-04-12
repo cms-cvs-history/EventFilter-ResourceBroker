@@ -44,7 +44,7 @@ public:
 	//
 	IPCMethod(bool segmentationMode, UInt_t nbRawCells, UInt_t nbRecoCells,
 			UInt_t nbDqmCells, UInt_t rawCellSize, UInt_t recoCellSize,
-			UInt_t dqmCellSize, BUProxy *bu, SMProxy *sm,
+			UInt_t dqmCellSize, int freeResReq, BUProxy *bu, SMProxy *sm,
 			log4cplus::Logger logger, unsigned int timeout,
 			EvffedFillerRB *frb, xdaq::Application*app) throw (evf::Exception);
 
@@ -82,7 +82,7 @@ public:
 	/**
 	 * Has to be implemented by subclasses, according to IPC type.
 	 */
-	virtual bool discardWhileHalting() = 0;
+	virtual bool discardWhileHalting(bool sendDiscards) = 0;
 
 	/**
 	 * Returns the fuResourceId of the allocated resource
@@ -311,7 +311,10 @@ protected:
 	UInt_t nbDqmCells_;
 	UInt_t nbRawCells_;
 	UInt_t nbRecoCells_;
+
 	std::queue<UInt_t> freeResourceIds_;
+	// number of free resources required to ask BU for more events
+	unsigned int freeResRequiredForAllocate_;
 
 	bool *acceptSMDataDiscard_;
 	int *acceptSMDqmDiscard_;

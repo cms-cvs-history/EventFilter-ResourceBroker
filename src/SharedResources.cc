@@ -22,7 +22,8 @@ using std::endl;
 using namespace evf::rb_statemachine;
 
 SharedResources::SharedResources(Logger log) :
-	wlMonitoring_(0), asMonitoring_(0),
+			wlMonitoring_(0),
+			asMonitoring_(0),
 			wlWatching_(0),
 			asWatching_(0),
 			wlSendData_(0),
@@ -80,17 +81,20 @@ SharedResources::SharedResources(Logger log) :
 			recoCellSize_(0x800000) // 8MB
 			,
 			dqmCellSize_(0x800000) // 8MB
-			, doDropEvents_(false), doFedIdCheck_(true), doCrcCheck_(1),
-			doDumpEvents_(0), buClassName_("BU"), buInstance_(0),
-			smClassName_("StorageManager"), smInstance_(0),
-			resourceStructureTimeout_(200000), monSleepSec_(2),
+			// at least nbRawCells / 2 free resources to send allocate
+			, freeResRequiredForAllocate_(-1), doDropEvents_(false),
+			doFedIdCheck_(true), doCrcCheck_(1), doDumpEvents_(0),
+			buClassName_("BU"), buInstance_(0), smClassName_("StorageManager"),
+			smInstance_(0), resourceStructureTimeout_(200000), monSleepSec_(2),
 			watchSleepSec_(10), timeOutSec_(30), processKillerEnabled_(true),
 			useEvmBoard_(true), reasonForFailed_(""), nbAllocateSent_(0),
 			nbTakeReceived_(0), nbDataDiscardReceived_(0),
 			nbDqmDiscardReceived_(0), nbSentLast_(0), sumOfSquaresLast_(0),
-			sumOfSizesLast_(0), frb_(0), shmInconsistent_(false) {
+			sumOfSizesLast_(0), frb_(0), shmInconsistent_(false),
+			allowAccessToResourceStructure_(true) {
 
 	sem_init(&lock_, 0, 1);
+	sem_init(&accessToResourceStructureLock_, 0, 1);
 
 }
 
@@ -105,7 +109,8 @@ void SharedResources::configureResources(xdaq::Application* app) {
 
 	ipcManager_->initialise(segmentationMode_.value_, nbRawCells_.value_,
 			nbRecoCells_.value_, nbDqmCells_.value_, rawCellSize_.value_,
-			recoCellSize_.value_, dqmCellSize_.value_, bu_, sm_, log_,
+			recoCellSize_.value_, dqmCellSize_.value_,
+			freeResRequiredForAllocate_, bu_, sm_, log_,
 			resourceStructureTimeout_.value_, frb_, app);
 
 	resourceStructure_ = ipcManager_->ipc();
@@ -300,9 +305,16 @@ bool SharedResources::watching(toolbox::task::WorkLoop*) {
 		return false;
 	}
 
-	vector<pid_t> evt_prcids = resourceStructure_->cellPrcIds();
-	vector<UInt_t> evt_numbers = resourceStructure_->cellEvtNumbers();
-	vector<time_t> evt_tstamps = resourceStructure_->cellTimeStamps();
+	vector<pid_t> evt_prcids;
+	vector<UInt_t> evt_numbers;
+	vector<time_t> evt_tstamps;
+	try {
+		evt_prcids = resourceStructure_->cellPrcIds();
+		evt_numbers = resourceStructure_->cellEvtNumbers();
+		evt_tstamps = resourceStructure_->cellTimeStamps();
+	} catch (evf::Exception& e) {
+		goToFailedState(e);
+	}
 
 	time_t tcurr = time(0);
 	for (UInt_t i = 0; i < evt_tstamps.size(); i++) {
@@ -326,32 +338,41 @@ bool SharedResources::watching(toolbox::task::WorkLoop*) {
 		}
 	}
 
-	vector<pid_t> prcids = resourceStructure_->clientPrcIds();
-	for (UInt_t i = 0; i < prcids.size(); i++) {
-		pid_t pid = prcids[i];
-		int status = kill(pid, 0);
-		if (status != 0) {
-			LOG4CPLUS_ERROR(
-					log_,
-					"EP prc " << pid
-							<< " died, send to error stream if processing.");
-			if (!resourceStructure_->handleCrashedEP(runNumber_, pid))
-				nbTimeoutsWithoutEvent_++;
+	vector<pid_t> prcids;
+	try {
+		prcids = resourceStructure_->clientPrcIds();
+		for (UInt_t i = 0; i < prcids.size(); i++) {
+			pid_t pid = prcids[i];
+			int status = kill(pid, 0);
+			if (status != 0) {
+				LOG4CPLUS_ERROR(
+						log_,
+						"EP prc " << pid
+								<< " died, send to error stream if processing.");
+				if (!resourceStructure_->handleCrashedEP(runNumber_, pid))
+					nbTimeoutsWithoutEvent_++;
+			}
 		}
+	} catch (evf::Exception& e) {
+		goToFailedState(e);
 	}
 
-	if ((resourceStructure_->nbResources() != nbRawCells_.value_)
-			&& !shmInconsistent_) {
-		std::ostringstream ost;
-		ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw="
-				<< nbRawCells_.value_ << " but nbResources="
-				<< resourceStructure_->nbResources() << " and nbFreeSlots="
-				<< resourceStructure_->nbFreeSlots();
-		XCEPT_DECLARE(evf::Exception, sentinelException, ost.str());
-		fsm_->getApp()->notifyQualified("error", sentinelException);
+	try {
+		if ((resourceStructure_->nbResources() != nbRawCells_.value_)
+				&& !shmInconsistent_) {
+			std::ostringstream ost;
+			ost << "Watchdog spotted inconsistency in ResourceTable - nbRaw="
+					<< nbRawCells_.value_ << " but nbResources="
+					<< resourceStructure_->nbResources() << " and nbFreeSlots="
+					<< resourceStructure_->nbFreeSlots();
+			XCEPT_DECLARE(evf::Exception, sentinelException, ost.str());
+			fsm_->getApp()->notifyQualified("error", sentinelException);
 
-		//concept shmInconsistent
-		//shmInconsistent_ = true;
+			//concept shmInconsistent
+			//shmInconsistent_ = true;
+		}
+	} catch (evf::Exception& e) {
+		goToFailedState(e);
 	}
 
 	unlock();
@@ -405,24 +426,28 @@ bool SharedResources::sendData(toolbox::task::WorkLoop*) {
 	currentStateID = fsm_->getCurrentState().stateID();
 	fsm_->transitionUnlock();
 
-	switch (currentStateID) {
-	case rb_statemachine::RUNNING:
-		reschedule = resourceStructure_->sendData();
-		break;
-	case rb_statemachine::STOPPING:
-		reschedule = resourceStructure_->sendData();
-		break;
-	case rb_statemachine::HALTING:
-		reschedule = resourceStructure_->sendDataWhileHalting();
-		break;
-	case rb_statemachine::FAILED:
-		// workloop must be exited in this state
-		return false;
-	default:
-		cout << "RBStateMachine: current state: " << currentStateID
-				<< " does not support action: >>sendData<<" << endl;
-		::usleep(50000);
-		reschedule = true;
+	try {
+		switch (currentStateID) {
+		case rb_statemachine::RUNNING:
+			reschedule = resourceStructure_->sendData();
+			break;
+		case rb_statemachine::STOPPING:
+			reschedule = resourceStructure_->sendData();
+			break;
+		case rb_statemachine::HALTING:
+			reschedule = resourceStructure_->sendDataWhileHalting();
+			break;
+		case rb_statemachine::FAILED:
+			// workloop must be exited in this state
+			return false;
+		default:
+			cout << "RBStateMachine: current state: " << currentStateID
+					<< " does not support action: >>sendData<<" << endl;
+			::usleep(50000);
+			reschedule = true;
+		}
+	} catch (evf::Exception& e) {
+		goToFailedState(e);
 	}
 
 	return reschedule;
@@ -455,24 +480,28 @@ bool SharedResources::sendDqm(toolbox::task::WorkLoop*) {
 	currentStateID = fsm_->getCurrentState().stateID();
 	fsm_->transitionUnlock();
 
-	switch (currentStateID) {
-	case rb_statemachine::RUNNING:
-		reschedule = resourceStructure_->sendDqm();
-		break;
-	case rb_statemachine::STOPPING:
-		reschedule = resourceStructure_->sendDqm();
-		break;
-	case rb_statemachine::HALTING:
-		reschedule = resourceStructure_->sendDqmWhileHalting();
-		break;
-	case rb_statemachine::FAILED:
-		// workloop must be exited in this state
-		return false;
-	default:
-		cout << "RBStateMachine: current state: " << currentStateID
-				<< " does not support action: >>sendDqm<<" << endl;
-		::usleep(50000);
-		reschedule = true;
+	try {
+		switch (currentStateID) {
+		case rb_statemachine::RUNNING:
+			reschedule = resourceStructure_->sendDqm();
+			break;
+		case rb_statemachine::STOPPING:
+			reschedule = resourceStructure_->sendDqm();
+			break;
+		case rb_statemachine::HALTING:
+			reschedule = resourceStructure_->sendDqmWhileHalting();
+			break;
+		case rb_statemachine::FAILED:
+			// workloop must be exited in this state
+			return false;
+		default:
+			cout << "RBStateMachine: current state: " << currentStateID
+					<< " does not support action: >>sendDqm<<" << endl;
+			::usleep(50000);
+			reschedule = true;
+		}
+	} catch (evf::Exception& e) {
+		goToFailedState(e);
 	}
 
 	return reschedule;
@@ -507,26 +536,30 @@ bool SharedResources::discard(toolbox::task::WorkLoop*) {
 	fsm_->transitionReadLock();
 	currentStateID = fsm_->getCurrentState().stateID();
 	fsm_->transitionUnlock();
-
-	switch (currentStateID) {
-	case rb_statemachine::RUNNING:
-		reschedule = resourceStructure_->discard();
-		break;
-	case rb_statemachine::STOPPING:
-		// UPDATE XXX: no more communication with BU after stop??
-		reschedule = resourceStructure_->discardWhileHalting();
-		break;
-	case rb_statemachine::HALTING:
-		reschedule = resourceStructure_->discardWhileHalting();
-		break;
-	case rb_statemachine::FAILED:
-		// workloop must be exited in this state
-		return false;
-	default:
-		cout << "RBStateMachine: current state: " << currentStateID
-				<< " does not support action: >>discard<<" << endl;
-		::usleep(50000);
-		reschedule = true;
+	try {
+		switch (currentStateID) {
+		case rb_statemachine::RUNNING:
+			reschedule = resourceStructure_->discard();
+			break;
+		case rb_statemachine::STOPPING:
+			// XXX: communication with BU after stop!
+			reschedule = resourceStructure_->discardWhileHalting(true);
+			break;
+		case rb_statemachine::HALTING:
+			// XXX: no more communication with BU after halt!
+			reschedule = resourceStructure_->discardWhileHalting(false);
+			break;
+		case rb_statemachine::FAILED:
+			// workloop must be exited in this state
+			return false;
+		default:
+			cout << "RBStateMachine: current state: " << currentStateID
+					<< " does not support action: >>discard<<" << endl;
+			::usleep(50000);
+			reschedule = true;
+		}
+	} catch (evf::Exception& e) {
+		goToFailedState(e);
 	}
 
 	return reschedule;
@@ -543,4 +576,13 @@ void SharedResources::printWorkLoopStatus() {
 	if (wlDiscard_ != 0)
 		cout << "Discard  -> " << wlDiscard_->isActive() << endl;
 	//cout << "Workloops Active  -> " << isActive_ << endl;
+}
+
+//______________________________________________________________________________
+void SharedResources::goToFailedState(evf::Exception& exception) {
+	reasonForFailed_ = exception.what();
+	LOG4CPLUS_ERROR(log_,
+			"Moving to FAILED state! Reason: " << exception.what());
+	EventPtr fail(new Fail());
+	commands_.enqEvent(fail);
 }
