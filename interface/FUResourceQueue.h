@@ -35,9 +35,9 @@ public:
 	//
 	FUResourceQueue(bool segmentationMode, UInt_t nbRawCells,
 			UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-			UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy* bu, SMProxy* sm,
-			log4cplus::Logger logger, unsigned int, EvffedFillerRB*frb,
-			xdaq::Application*) throw (evf::Exception);
+			UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq,
+			BUProxy* bu, SMProxy* sm, log4cplus::Logger logger, unsigned int,
+			EvffedFillerRB*frb, xdaq::Application*) throw (evf::Exception);
 	virtual ~FUResourceQueue();
 
 	//
@@ -111,6 +111,9 @@ public:
 	// helpers
 	//
 	void lastResort();
+	void resetIPC() {
+		// nothing here
+	}
 
 private:
 	//

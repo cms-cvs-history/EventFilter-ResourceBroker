@@ -40,8 +40,12 @@ void Enabling::do_stateAction() const {
 		resourceStructure->setRunNumber(res->runNumber_);
 		res->lock();
 
-		// UPDATED: reset pending allocates
+		// UPDATED: release resources
+		resourceStructure->releaseResources();
+		// UPDATED: forget pending allocates to BU
 		resourceStructure->resetPendingAllocates();
+		// UPDATE: reset the underlying IPC method
+		resourceStructure->resetIPC();
 
 		resourceStructure->resetCounters();
 		res->unlock();

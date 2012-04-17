@@ -1,3 +1,8 @@
+2012-04-17  Andrei Spataru  <aspataru@cern.ch>
+
+	* tag V01-00-07
+	* resources and shm buffer are reset on Enabling
+
 2012-04-12  Andrei Spataru  <aspataru@cern.ch>
 
 	* tag V01-00-06

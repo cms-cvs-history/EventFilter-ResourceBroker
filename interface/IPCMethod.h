@@ -258,7 +258,13 @@ public:
 	// helpers
 	//
 	void sendAllocate();
+	/// resets free resources to the maximum number
 	void resetPendingAllocates();
+	/// releases all FUResource's
+	void releaseResources();
+	/// resets the underlying IPC method to the initial state
+	virtual void resetIPC() = 0;
+
 	void sendDiscard(UInt_t buResourceId);
 
 	void sendInitMessage(UInt_t fuResourceId, UInt_t outModId,

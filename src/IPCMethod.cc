@@ -20,7 +20,6 @@ using std::ofstream;
 using std::endl;
 using namespace evf;
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,16 +27,15 @@ using namespace evf;
 //______________________________________________________________________________
 IPCMethod::IPCMethod(bool segmentationMode, UInt_t nbRawCells,
 		UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq,
-		BUProxy *bu, SMProxy *sm, log4cplus::Logger logger,
-		unsigned int timeout, EvffedFillerRB *frb, xdaq::Application*app)
-		throw (evf::Exception) :
+		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy *bu,
+		SMProxy *sm, log4cplus::Logger logger, unsigned int timeout,
+		EvffedFillerRB *frb, xdaq::Application*app) throw (evf::Exception) :
 	bu_(bu), sm_(sm), log_(logger), nbDqmCells_(nbDqmCells),
 			nbRawCells_(nbRawCells), nbRecoCells_(nbRecoCells),
-			acceptSMDataDiscard_(0),
-			acceptSMDqmDiscard_(0), doCrcCheck_(1), shutdownTimeout_(timeout),
-			nbPending_(0), nbClientsToShutDown_(0), isReadyToShutDown_(true),
-			isActive_(false), runNumber_(0xffffffff), frb_(frb), app_(app) {
+			acceptSMDataDiscard_(0), acceptSMDqmDiscard_(0), doCrcCheck_(1),
+			shutdownTimeout_(timeout), nbPending_(0), nbClientsToShutDown_(0),
+			isReadyToShutDown_(true), isActive_(false), runNumber_(0xffffffff),
+			frb_(frb), app_(app) {
 
 	// if the freeResRequiredForAllocate_ threshold is set in configuration use that
 	// otherwise use nbRawCells / 2
@@ -132,6 +130,13 @@ void IPCMethod::resetPendingAllocates() {
 		for (UInt_t i = 0; i < nbRawCells_; i++)
 			freeResourceIds_.push(i);
 	}
+}
+
+//______________________________________________________________________________
+void IPCMethod::releaseResources() {
+	for (UInt_t i = 0; i < resources_.size(); i++)
+		resources_[i]->release(true);
+
 }
 
 //______________________________________________________________________________

@@ -122,11 +122,10 @@ void SharedResources::configureResources(xdaq::Application* app) {
 	reset();
 	shmInconsistent_ = false;
 
-	//concept shmInconsistent
-
-	//if (resourceStructure_->nbResources() != nbRawCells_.value_
-	//|| resourceStructure_->nbFreeSlots() != nbRawCells_.value_)
-	//shmInconsistent_ = true;
+	// XXX shmInconsistent check
+	if (resourceStructure_->nbResources() != nbRawCells_.value_
+			|| resourceStructure_->nbFreeSlots() != nbRawCells_.value_)
+		shmInconsistent_ = true;
 }
 
 //______________________________________________________________________________
@@ -368,8 +367,8 @@ bool SharedResources::watching(toolbox::task::WorkLoop*) {
 			XCEPT_DECLARE(evf::Exception, sentinelException, ost.str());
 			fsm_->getApp()->notifyQualified("error", sentinelException);
 
-			//concept shmInconsistent
-			//shmInconsistent_ = true;
+			// XXX shmInconsistent
+			shmInconsistent_ = true;
 		}
 	} catch (evf::Exception& e) {
 		goToFailedState(e);
@@ -403,6 +402,7 @@ double SharedResources::deltaT(const struct timeval *start,
 //______________________________________________________________________________
 void SharedResources::startSendDataWorkLoop() throw (evf::Exception) {
 	try {
+		LOG4CPLUS_INFO(log_, "Start 'send data' workloop.");
 		wlSendData_ = toolbox::task::getWorkLoopFactory()->getWorkLoop(
 				"SendData", "waiting");
 		if (!wlSendData_->isActive())
@@ -457,6 +457,7 @@ bool SharedResources::sendData(toolbox::task::WorkLoop*) {
 //______________________________________________________________________________
 void SharedResources::startSendDqmWorkLoop() throw (evf::Exception) {
 	try {
+		LOG4CPLUS_INFO(log_, "Start 'send dqm' workloop.");
 		wlSendDqm_ = toolbox::task::getWorkLoopFactory()->getWorkLoop(
 				"SendDqm", "waiting");
 		if (!wlSendDqm_->isActive())

@@ -163,6 +163,8 @@ public:
 		return resources_.size();
 	}
 	void lastResort();
+	/// reset the ShmBuffer to the initial state
+	void resetIPC();
 
 private:
 

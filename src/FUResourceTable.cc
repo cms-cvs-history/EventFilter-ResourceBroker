@@ -28,10 +28,9 @@ using namespace std;
 //______________________________________________________________________________
 FUResourceTable::FUResourceTable(bool segmentationMode, UInt_t nbRawCells,
 		UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq,
-		BUProxy *bu, SMProxy *sm, log4cplus::Logger logger,
-		unsigned int timeout, EvffedFillerRB *frb, xdaq::Application*app)
-		throw (evf::Exception) :
+		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy *bu,
+		SMProxy *sm, log4cplus::Logger logger, unsigned int timeout,
+		EvffedFillerRB *frb, xdaq::Application*app) throw (evf::Exception) :
 
 	// call super constructor
 			IPCMethod(segmentationMode, nbRawCells, nbRecoCells, nbDqmCells,
@@ -1204,6 +1203,13 @@ void FUResourceTable::lastResort() {
 		shmBuffer_->scheduleRawEmptyCellForDiscard();
 	} catch (evf::Exception& e) {
 		rethrowShmBufferException(e);
+	}
+}
+
+void FUResourceTable::resetIPC() {
+	if (shmBuffer_ != 0) {
+		shmBuffer_->reset();
+		LOG4CPLUS_INFO(log_, "ShmBuffer was reset!");
 	}
 }
 

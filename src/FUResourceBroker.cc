@@ -60,7 +60,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Changeset: 12.04.2012-V1.05");
+	res_->gui_->setVersionString("Changeset: 16.04.2012-V1.051");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
@@ -263,7 +263,7 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef) {
 				"TAKE i2o frame received in state "
 						<< fsm_->getExternallyVisibleState()
 						<< " is being lost! THIS MEANS LOST EVENT DATA!"
-						<< details);
+						<< details.str());
 
 		bufRef->release();
 	}
