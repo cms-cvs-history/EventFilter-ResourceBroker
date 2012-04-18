@@ -843,7 +843,7 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 
 	if (iRawCell < pids.size()) {
 		try {
-			shmBuffer_->writeErrorEventData(runNumber, pid, iRawCell);
+			shmBuffer_->writeErrorEventData(runNumber, pid, iRawCell, true);
 		} catch (evf::Exception& e) {
 			rethrowShmBufferException(e);
 		}
@@ -933,7 +933,7 @@ void FUResourceTable::shutDownClients() {
 							"Schedule discard at STOP for orphaned event in state "
 									<< state);
 					try {
-						shmBuffer_->setEvtDiscard(i, 1);
+						shmBuffer_->setEvtDiscard(i, 1, true);
 						shmBuffer_->scheduleRawCellForDiscardServerSide(i);
 					} catch (evf::Exception& e) {
 						rethrowShmBufferException(e);
