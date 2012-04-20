@@ -268,7 +268,8 @@ public:
 	void sendDiscard(UInt_t buResourceId);
 
 	void sendInitMessage(UInt_t fuResourceId, UInt_t outModId,
-			UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data, UInt_t dataSize);
+			UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data, UInt_t dataSize,
+			UInt_t nExpectedEPs);
 
 	void sendDataEvent(UInt_t fuResourceId, UInt_t runNumber, UInt_t evtNumber,
 			UInt_t outModId, UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data,

@@ -60,7 +60,7 @@ SMProxy::~SMProxy() {
 
 //______________________________________________________________________________
 UInt_t SMProxy::sendInitMessage(UInt_t fuResourceId, UInt_t outModId,
-		UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data, UInt_t dataSize)
+		UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data, UInt_t dataSize, UInt_t nExpectedEPs)
 		throw (evf::Exception) {
 	UInt_t totalSize = 0;
 	MemRef_t* bufRef = createFragmentChain(I2O_SM_PREAMBLE, initHeaderSize_,
@@ -74,6 +74,7 @@ UInt_t SMProxy::sendInitMessage(UInt_t fuResourceId, UInt_t outModId,
 		msg->outModID = outModId;
 		msg->fuProcID = fuProcessId;
 		msg->fuGUID = fuGuid;
+		msg->nExpectedEPs = nExpectedEPs;
 	} while ((next = next->getNextReference()));
 
 	try {

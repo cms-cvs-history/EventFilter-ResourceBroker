@@ -115,6 +115,7 @@ bool FUResourceTable::sendData() {
 				UInt_t cellFUGuid = cell->fuGuid();
 				UChar_t* cellPayloadAddr = cell->payloadAddr();
 				UInt_t cellEventSize = cell->eventSize();
+				UInt_t cellExpectedEPs = cell->nExpectedEPs();
 				try {
 					shmBuffer_->finishReadingRecoCell(cell);
 				} catch (evf::Exception& e) {
@@ -124,9 +125,8 @@ bool FUResourceTable::sendData() {
 				lock();
 				nbPendingSMDiscards_++;
 				unlock();
-
 				sendInitMessage(cellIndex, cellOutModId, cellFUProcId,
-						cellFUGuid, cellPayloadAddr, cellEventSize);
+						cellFUGuid, cellPayloadAddr, cellEventSize,cellExpectedEPs);
 			} else if (cell->type() == 1) {
 				UInt_t cellIndex = cell->index();
 				UInt_t cellRawIndex = cell->rawCellIndex();

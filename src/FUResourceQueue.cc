@@ -154,6 +154,7 @@ bool FUResourceQueue::sendData() {
 				UInt_t cellFUGuid = cell->fuGuid();
 				UChar_t* cellPayloadAddr = cell->payloadAddr();
 				UInt_t cellEventSize = cell->eventSize();
+				UInt_t cellExpectedEPs = cell->nExpectedEPs();
 				//shmBuffer_->finishReadingRecoCell(cell);
 
 				lock();
@@ -161,7 +162,7 @@ bool FUResourceQueue::sendData() {
 				unlock();
 
 				sendInitMessage(cellIndex, cellOutModId, cellFUProcId,
-						cellFUGuid, cellPayloadAddr, cellEventSize);
+						cellFUGuid, cellPayloadAddr, cellEventSize,cellExpectedEPs);
 
 				//
 				// DATA event message
@@ -276,6 +277,7 @@ bool FUResourceQueue::sendDataWhileHalting(/*toolbox::task::WorkLoop*  wl */) {
 				UInt_t cellFUGuid = cell->fuGuid();
 				UChar_t* cellPayloadAddr = cell->payloadAddr();
 				UInt_t cellEventSize = cell->eventSize();
+				UInt_t cellExpectedEPs = cell->nExpectedEPs();
 				//shmBuffer_->finishReadingRecoCell(cell);
 
 				lock();
@@ -283,7 +285,7 @@ bool FUResourceQueue::sendDataWhileHalting(/*toolbox::task::WorkLoop*  wl */) {
 				unlock();
 
 				sendInitMessage(cellIndex, cellOutModId, cellFUProcId,
-						cellFUGuid, cellPayloadAddr, cellEventSize);
+						cellFUGuid, cellPayloadAddr, cellEventSize,cellExpectedEPs);
 
 				//
 				// DATA event message

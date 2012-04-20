@@ -147,13 +147,14 @@ void IPCMethod::sendDiscard(UInt_t buResourceId) {
 
 //______________________________________________________________________________
 void IPCMethod::sendInitMessage(UInt_t fuResourceId, UInt_t outModId,
-		UInt_t fuProcessId, UInt_t fuGuid, UChar_t *data, UInt_t dataSize) {
+		UInt_t fuProcessId, UInt_t fuGuid, UChar_t *data, UInt_t dataSize,
+		UInt_t nExpectedEPs) {
 	if (0 == sm_) {
 		LOG4CPLUS_ERROR(log_, "No StorageManager, DROP INIT MESSAGE!");
 	} else {
 		acceptSMDataDiscard_[fuResourceId] = true;
 		UInt_t nbBytes = sm_->sendInitMessage(fuResourceId, outModId,
-				fuProcessId, fuGuid, data, dataSize);
+				fuProcessId, fuGuid, data, dataSize,nExpectedEPs);
 		sumOfSquares_ += (uint64_t) nbBytes * (uint64_t) nbBytes;
 		sumOfSizes_ += nbBytes;
 	}
