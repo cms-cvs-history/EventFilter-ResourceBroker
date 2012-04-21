@@ -64,6 +64,14 @@ void Stopping::do_stateAction() const {
 		}
 
 		if (resourceStructure->isReadyToShutDown()) {
+
+			// UPDATED: release resources
+			resourceStructure->releaseResources();
+			// UPDATED: forget pending allocates to BU
+			resourceStructure->resetPendingAllocates();
+			// UPDATE: reset the underlying IPC method
+			resourceStructure->resetIPC();
+
 			LOG4CPLUS_INFO(res->log_, "Finished stopping!");
 			EventPtr stopDone(new StopDone());
 			res->commands_.enqEvent(stopDone);

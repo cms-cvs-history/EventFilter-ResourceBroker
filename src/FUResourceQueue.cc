@@ -39,12 +39,12 @@ using namespace evf;
 //______________________________________________________________________________
 FUResourceQueue::FUResourceQueue(bool segmentationMode, UInt_t nbRawCells,
 		UInt_t nbRecoCells, UInt_t nbDqmCells, UInt_t rawCellSize,
-		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy *bu, SMProxy *sm,
-		log4cplus::Logger logger, unsigned int timeout, EvffedFillerRB *frb,
-		xdaq::Application*app) throw (evf::Exception) :
+		UInt_t recoCellSize, UInt_t dqmCellSize, int freeResReq, BUProxy *bu,
+		SMProxy *sm, log4cplus::Logger logger, unsigned int timeout,
+		EvffedFillerRB *frb, xdaq::Application*app) throw (evf::Exception) :
 			IPCMethod(segmentationMode, nbRawCells, nbRecoCells, nbDqmCells,
-					rawCellSize, recoCellSize, dqmCellSize, freeResReq, bu, sm, logger,
-					timeout, frb, app), msq_(99) {
+					rawCellSize, recoCellSize, dqmCellSize, freeResReq, bu, sm,
+					logger, timeout, frb, app), msq_(99) {
 	//improve fix UInt_t and msq_(99)
 
 	initialize(segmentationMode, nbRawCells, nbRecoCells, nbDqmCells,
@@ -162,7 +162,8 @@ bool FUResourceQueue::sendData() {
 				unlock();
 
 				sendInitMessage(cellIndex, cellOutModId, cellFUProcId,
-						cellFUGuid, cellPayloadAddr, cellEventSize,cellExpectedEPs);
+						cellFUGuid, cellPayloadAddr, cellEventSize,
+						cellExpectedEPs);
 
 				//
 				// DATA event message
@@ -285,7 +286,8 @@ bool FUResourceQueue::sendDataWhileHalting(/*toolbox::task::WorkLoop*  wl */) {
 				unlock();
 
 				sendInitMessage(cellIndex, cellOutModId, cellFUProcId,
-						cellFUGuid, cellPayloadAddr, cellEventSize,cellExpectedEPs);
+						cellFUGuid, cellPayloadAddr, cellEventSize,
+						cellExpectedEPs);
 
 				//
 				// DATA event message
@@ -300,6 +302,7 @@ bool FUResourceQueue::sendDataWhileHalting(/*toolbox::task::WorkLoop*  wl */) {
 				UInt_t cellFUGuid = cell->fuGuid();
 				UChar_t *cellPayloadAddr = cell->payloadAddr();
 				UInt_t cellEventSize = cell->eventSize();
+
 				//shmBuffer_->finishReadingRecoCell(cell);
 				lock();
 				nbPendingSMDiscards_++;

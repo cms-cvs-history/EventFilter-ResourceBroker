@@ -40,8 +40,8 @@ public:
 	 * Send Init message to SM
 	 */
 	UInt_t sendInitMessage(UInt_t fuResourceId, UInt_t outModId,
-			UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data, UInt_t dataSize, UInt_t nExpectedEPs)
-			throw (evf::Exception);
+			UInt_t fuProcessId, UInt_t fuGuid, UChar_t*data, UInt_t dataSize,
+			UInt_t nExpectedEPs) throw (evf::Exception);
 
 	/**
 	 * Send Data Event message to SM

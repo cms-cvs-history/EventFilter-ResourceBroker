@@ -125,8 +125,10 @@ bool FUResourceTable::sendData() {
 				lock();
 				nbPendingSMDiscards_++;
 				unlock();
+
 				sendInitMessage(cellIndex, cellOutModId, cellFUProcId,
-						cellFUGuid, cellPayloadAddr, cellEventSize,cellExpectedEPs);
+						cellFUGuid, cellPayloadAddr, cellEventSize,
+						cellExpectedEPs);
 			} else if (cell->type() == 1) {
 				UInt_t cellIndex = cell->index();
 				UInt_t cellRawIndex = cell->rawCellIndex();

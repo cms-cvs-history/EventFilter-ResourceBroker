@@ -154,7 +154,7 @@ void IPCMethod::sendInitMessage(UInt_t fuResourceId, UInt_t outModId,
 	} else {
 		acceptSMDataDiscard_[fuResourceId] = true;
 		UInt_t nbBytes = sm_->sendInitMessage(fuResourceId, outModId,
-				fuProcessId, fuGuid, data, dataSize,nExpectedEPs);
+				fuProcessId, fuGuid, data, dataSize, nExpectedEPs);
 		sumOfSquares_ += (uint64_t) nbBytes * (uint64_t) nbBytes;
 		sumOfSizes_ += nbBytes;
 	}
