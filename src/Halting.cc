@@ -30,14 +30,13 @@ void Halting::do_stateNotify() {
 
 void Halting::do_stateAction() const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	IPCMethod* resourceStructure = res->resourceStructure_;
 	try {
 		LOG4CPLUS_INFO(res->log_, "Start halting ...");
-		if (resourceStructure->isActive()) {
-			resourceStructure->shutDownClients();
+		if (res->resourceStructure_->isActive()) {
+			res->resourceStructure_->shutDownClients();
 			UInt_t count = 0;
 			while (count < 10) {
-				if (resourceStructure->isReadyToShutDown()) {
+				if (res->resourceStructure_->isReadyToShutDown()) {
 					res->lock();
 
 					delete res->resourceStructure_;

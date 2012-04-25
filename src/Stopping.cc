@@ -33,15 +33,14 @@ void Stopping::do_stateNotify() {
 
 void Stopping::do_stateAction() const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
-	IPCMethod* resourceStructure = res->resourceStructure_;
 
 	try {
 		LOG4CPLUS_INFO(res->log_, "Start stopping :) ...");
-		resourceStructure->shutDownClients();
+		res->resourceStructure_->shutDownClients();
 		timeval now;
 		timeval then;
 		gettimeofday(&then, 0);
-		while (!resourceStructure->isReadyToShutDown()) {
+		while (!res->resourceStructure_->isReadyToShutDown()) {
 			::usleep(res->resourceStructureTimeout_.value_ * 10);
 			gettimeofday(&now, 0);
 			if ((unsigned int) (now.tv_sec - then.tv_sec)
@@ -63,14 +62,17 @@ void Stopping::do_stateAction() const {
 			}
 		}
 
-		if (resourceStructure->isReadyToShutDown()) {
+		if (res->resourceStructure_->isReadyToShutDown()) {
 
-			// UPDATED: release resources
-			resourceStructure->releaseResources();
-			// UPDATED: forget pending allocates to BU
-			resourceStructure->resetPendingAllocates();
-			// UPDATE: reset the underlying IPC method
-			resourceStructure->resetIPC();
+			// reset only if there was no emergency stop
+			if (res->allowAccessToResourceStructure_) {
+				// UPDATED: release resources
+				res->resourceStructure_->releaseResources();
+				// UPDATED: forget pending allocates to BU
+				res->resourceStructure_->resetPendingAllocates();
+				// UPDATE: reset the underlying IPC method
+				res->resourceStructure_->resetIPC();
+			}
 
 			LOG4CPLUS_INFO(res->log_, "Finished stopping!");
 			EventPtr stopDone(new StopDone());
@@ -126,7 +128,7 @@ void Stopping::emergencyStop() const {
 	// I2O messages from SM will be rejected
 	res->allowAccessToResourceStructure_ = false;
 
-	vector<pid_t> client_prc_ids = resourceStructure->clientPrcIds();
+	vector < pid_t > client_prc_ids = resourceStructure->clientPrcIds();
 	for (UInt_t i = 0; i < client_prc_ids.size(); i++) {
 		pid_t pid = client_prc_ids[i];
 		cout << "B: killing process " << i << " pid= " << pid << endl;

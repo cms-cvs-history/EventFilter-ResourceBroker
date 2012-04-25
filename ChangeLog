@@ -1,3 +1,8 @@
+2012-04-25  Andrei Spataru  <aspataru@cern.ch>
+
+	* tag V01-00-10
+	* fixed resource resetting after emergency stop
+	
 2012-04-21  Andrei Spataru  <aspataru@cern.ch>
 
 	* tag V01-00-08
